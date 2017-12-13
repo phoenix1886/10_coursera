@@ -80,8 +80,8 @@ if __name__ == '__main__':
             print('parsing {}'.format(c_url))
             courses_info.append(get_course_info(c_url))
         except requests.exceptions.HTTPError as err:
-            print('Couldn\t request information to {}. {}'.format(c_url, err))
+            print('Couldn\'t request information to {}. {}'.format(c_url, err))
         except AttributeError as err:
-            print('Couldn\t parse web page')
+            print('Couldn\'t parse web page')
     output_courses_info_to_xlsx(file_path, courses_info)
     print('Information recorded to {}'.format(file_path))
