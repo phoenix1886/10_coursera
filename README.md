@@ -14,7 +14,7 @@ The script takes 2 positional arguments:
 
 ## Example of work
 ```
-KirillMaslov$ python 10_coursera/coursera.py './results.xlsx' 10
+$ python coursera.py './results.xlsx' 10
 Requesting coursera...
 parsing https://www.coursera.org/learn/hotel-management-project
 parsing https://www.coursera.org/learn/crypto-info-theory
