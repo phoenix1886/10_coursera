@@ -21,7 +21,8 @@ def fetch_courses_list():
     namespaces = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
     courses = [loc.text for loc in xml_tree.xpath(
         '//ns:loc',
-        namespaces=namespaces)]
+        namespaces=namespaces
+    )]
     return courses
 
 
@@ -42,7 +43,8 @@ def get_course_info(soup):
     course_info = {}
     course_info['title'] = soup.find(
         'h1',
-         class_='title display-3-text').get_text()
+         class_='title display-3-text'
+    ).get_text()
     course_info['lang'] = soup.find('div', class_='rc-Language').get_text()
     course_info['course_length'] = len(soup.find_all('div', class_='week'))
     course_info['start_dt'] = soup.find('div', class_='startdate').get_text()
