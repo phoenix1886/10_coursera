@@ -19,8 +19,9 @@ def fetch_courses_list():
     site_map = requests.get(site_map_url)
     xml_tree = etree.fromstring(site_map.content)
     namespaces = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-    courses = [loc.text for loc in xml_tree.xpath('//ns:loc',
-                                                  namespaces=namespaces)]
+    courses = [loc.text for loc in xml_tree.xpath(
+        '//ns:loc',
+        namespaces=namespaces)]
     return courses
 
 
@@ -39,13 +40,15 @@ def fetch_html_tree(course_url):
 
 def get_course_info(soup):
     course_info = {}
-    course_info['title'] = soup.find('h1',
-                                     class_='title display-3-text').get_text()
+    course_info['title'] = soup.find(
+        'h1',
+         class_='title display-3-text').get_text()
     course_info['lang'] = soup.find('div', class_='rc-Language').get_text()
-    score_element = soup.find('div', class_='ratings-text bt3-visible-xs')
     course_info['course_length'] = len(soup.find_all('div', class_='week'))
     course_info['start_dt'] = soup.find('div', class_='startdate').get_text()
-    
+
+    score_element = soup.find('div', class_='ratings-text bt3-visible-xs')
+
     course_info['av_score'] = (score_element.get_text()
                                if score_element else 'No scores')
     return course_info
@@ -57,7 +60,7 @@ def make_courses_workbook(courses_info):
     header = [
         'Title',
         'Language',
-        'User\'s score',
+        "User's score",
         'Course length',
         'Start date',
     ]
@@ -91,10 +94,11 @@ if __name__ == '__main__':
             soup = fetch_html_tree(course_url)
             courses_info.append(get_course_info(soup))
         except requests.exceptions.HTTPError as err:
-            print('Couldn\'t request information to {}. {}'.format(
-                course_url, err))
+            print("Couldn't request information to {}. {}".format(
+                course_url,
+                err))
         except AttributeError:
-            print('Couldn\'t parse web page {}'.format(course_url))
+            print("Couldn't parse web page {}".format(course_url))
 
     courses_workbook = make_courses_workbook(courses_info)
     save_workbook_to_file(courses_workbook, file_path)
