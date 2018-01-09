@@ -43,14 +43,15 @@ def get_course_info(soup):
                                      class_='title display-3-text').get_text()
     course_info['lang'] = soup.find('div', class_='rc-Language').get_text()
     score_element = soup.find('div', class_='ratings-text bt3-visible-xs')
-    course_info['av_score'] = (score_element.get_text()
-                               if score_element else 'No scores')
     course_info['course_length'] = len(soup.find_all('div', class_='week'))
     course_info['start_dt'] = soup.find('div', class_='startdate').get_text()
+    
+    course_info['av_score'] = (score_element.get_text()
+                               if score_element else 'No scores')
     return course_info
 
 
-def output_courses_info_to_xlsx(file_path, courses):
+def make_courses_workbook(courses_info):
     work_book = Workbook()
     work_sheet = work_book.active
     header = [
@@ -62,7 +63,7 @@ def output_courses_info_to_xlsx(file_path, courses):
     ]
 
     work_sheet.append(header)
-    for course in courses:
+    for course in courses_info:
         work_sheet.append([
             course['title'],
             course['lang'],
@@ -70,7 +71,11 @@ def output_courses_info_to_xlsx(file_path, courses):
             course['course_length'],
             course['start_dt'],
         ])
-    work_book.save(file_path)
+    return work_book
+
+
+def save_workbook_to_file(workbook, file_path):
+    workbook.save(file_path)
 
 
 if __name__ == '__main__':
@@ -91,5 +96,6 @@ if __name__ == '__main__':
         except AttributeError:
             print('Couldn\'t parse web page {}'.format(course_url))
 
-    output_courses_info_to_xlsx(file_path, courses_info)
+    courses_workbook = make_courses_workbook(courses_info)
+    save_workbook_to_file(courses_workbook, file_path)
     print('Information recorded to {}'.format(file_path))
