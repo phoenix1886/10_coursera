@@ -14,10 +14,19 @@ def parse_arguments():
     return args.path, args.num
 
 
-def fetch_courses_list():
-    site_map_url = 'https://www.coursera.org/sitemap~www~courses.xml'
-    site_map = requests.get(site_map_url)
-    xml_tree = etree.fromstring(site_map.content)
+def fetch_content(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/50.0.2661.102 Safari/537.36',
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.content
+
+
+def get_courses_list(site_map):
+    xml_tree = etree.fromstring(site_map)
     namespaces = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
     courses = [loc.text for loc in xml_tree.xpath(
         '//ns:loc',
@@ -26,15 +35,7 @@ def fetch_courses_list():
     return courses
 
 
-def fetch_html_tree(course_url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) '
-                      'AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/50.0.2661.102 Safari/537.36',
-    }
-    request = requests.get(course_url, headers=headers)
-    request.raise_for_status()
-    raw_html = request.content
+def get_html_tree(raw_html):
     soup = BeautifulSoup(raw_html, 'lxml')
     return soup
 
@@ -85,7 +86,11 @@ def save_workbook_to_file(workbook, file_path):
 
 if __name__ == '__main__':
     file_path, num_of_courses = parse_arguments()
-    courses_urls = fetch_courses_list()
+
+    site_map_url = 'https://www.coursera.org/sitemap~www~courses.xml'
+    site_map = fetch_content(site_map_url)
+
+    courses_urls = get_courses_list(site_map)
     courses_urls = sample(courses_urls, num_of_courses)
 
     print('Requesting coursera...')
@@ -93,7 +98,8 @@ if __name__ == '__main__':
     for course_url in courses_urls:
         try:
             print('parsing {}'.format(course_url))
-            soup = fetch_html_tree(course_url)
+            raw_html = fetch_content(course_url)
+            soup = get_html_tree(raw_html)
             courses_info.append(get_course_info(soup))
         except requests.exceptions.HTTPError as err:
             print("Couldn't request information to {}. {}".format(
